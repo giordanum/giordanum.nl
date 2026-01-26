@@ -1,0 +1,257 @@
+/* ===== Variables ===== */
+:root {
+    --bg: #0a0a0b;
+    --bg-subtle: #111113;
+    --surface: #18181b;
+    --border: #27272a;
+    --text: #fafafa;
+    --text-muted: #a1a1aa;
+    --text-subtle: #71717a;
+    --accent: #f97316;
+    --accent-glow: rgba(249, 115, 22, 0.15);
+    --font-sans: 'Space Grotesk', -apple-system, BlinkMacSystemFont, sans-serif;
+    --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+}
+
+/* ===== Reset & Base ===== */
+*, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    font-family: var(--font-sans);
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    min-height: 100vh;
+    overflow-x: hidden;
+}
+
+/* Film grain overlay */
+.grain {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    opacity: 0.03;
+    z-index: 1000;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+}
+
+/* ===== Typography ===== */
+h1, h2, h3 {
+    font-weight: 700;
+    letter-spacing: -0.02em;
+}
+
+h2 {
+    font-size: 0.875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--text-subtle);
+    margin-bottom: 1rem;
+}
+
+p {
+    color: var(--text-muted);
+    max-width: 55ch;
+}
+
+p + p {
+    margin-top: 1rem;
+}
+
+strong {
+    color: var(--text);
+    font-weight: 500;
+}
+
+a {
+    color: var(--accent);
+    text-decoration: none;
+    transition: opacity 0.2s;
+}
+
+a:hover {
+    opacity: 0.8;
+}
+
+/* ===== Layout ===== */
+main {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 4rem 1.5rem 6rem;
+}
+
+section {
+    margin-top: 5rem;
+}
+
+/* ===== Hero ===== */
+.hero {
+    padding: 4rem 0 2rem;
+    position: relative;
+}
+
+.punch-emoji {
+    font-size: 5rem;
+    margin-bottom: 1.5rem;
+    display: inline-block;
+    transition: transform 0.1s ease-out;
+    filter: drop-shadow(0 0 40px var(--accent-glow));
+}
+
+h1 {
+    font-size: clamp(2.5rem, 8vw, 4rem);
+    line-height: 1.1;
+}
+
+h1 .greeting {
+    display: block;
+    font-size: 1.25rem;
+    font-weight: 400;
+    color: var(--text-muted);
+    margin-bottom: 0.25rem;
+}
+
+h1 .name {
+    background: linear-gradient(135deg, var(--text) 0%, var(--accent) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.tagline {
+    font-size: 1.25rem;
+    margin-top: 1rem;
+    color: var(--text-muted);
+}
+
+/* ===== About ===== */
+.about .subtle {
+    font-style: italic;
+    color: var(--text-subtle);
+    margin-top: 1.5rem;
+}
+
+/* ===== Links ===== */
+.link-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 1rem;
+}
+
+.link-card {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    padding: 1.5rem;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    color: var(--text);
+    transition: all 0.2s ease;
+}
+
+.link-card:hover {
+    opacity: 1;
+    border-color: var(--accent);
+    background: var(--bg-subtle);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3), 0 0 0 1px var(--accent-glow);
+}
+
+.link-icon {
+    width: 24px;
+    height: 24px;
+    color: var(--text-muted);
+    transition: color 0.2s;
+}
+
+.link-card:hover .link-icon {
+    color: var(--accent);
+}
+
+.link-label {
+    font-weight: 500;
+    font-size: 1.125rem;
+}
+
+.link-handle {
+    font-family: var(--font-mono);
+    font-size: 0.875rem;
+    color: var(--text-subtle);
+}
+
+/* ===== Human Section ===== */
+.human {
+    padding: 2rem;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+}
+
+.human h2 {
+    margin-bottom: 0.75rem;
+}
+
+/* ===== Footer ===== */
+footer {
+    text-align: center;
+    padding: 3rem 1.5rem;
+    color: var(--text-subtle);
+    font-size: 0.875rem;
+}
+
+.separator {
+    margin: 0 0.5rem;
+    opacity: 0.5;
+}
+
+/* ===== Animations ===== */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.hero, section {
+    animation: fadeIn 0.6s ease-out backwards;
+}
+
+.hero { animation-delay: 0.1s; }
+section:nth-of-type(1) { animation-delay: 0.2s; }
+section:nth-of-type(2) { animation-delay: 0.3s; }
+section:nth-of-type(3) { animation-delay: 0.4s; }
+
+/* ===== Mobile ===== */
+@media (max-width: 480px) {
+    main {
+        padding: 2rem 1rem 4rem;
+    }
+    
+    .punch-emoji {
+        font-size: 4rem;
+    }
+    
+    section {
+        margin-top: 3rem;
+    }
+    
+    .link-card {
+        padding: 1.25rem;
+    }
+}
