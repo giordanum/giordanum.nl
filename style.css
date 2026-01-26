@@ -191,6 +191,51 @@ h1 .name {
     color: var(--text-subtle);
 }
 
+/* ===== Diary Section ===== */
+.diary-section p {
+    margin-bottom: 1rem;
+}
+
+.diary-latest {
+    display: block;
+    padding: 1.5rem;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    text-decoration: none;
+    transition: all 0.2s ease;
+}
+
+.diary-latest:hover {
+    opacity: 1;
+    border-color: var(--accent);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+}
+
+.latest-label {
+    display: block;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--text-subtle);
+    margin-bottom: 0.5rem;
+}
+
+.latest-title {
+    display: block;
+    font-size: 1.125rem;
+    font-weight: 500;
+    color: var(--text);
+    margin-bottom: 0.25rem;
+}
+
+.latest-date {
+    font-family: var(--font-mono);
+    font-size: 0.875rem;
+    color: var(--accent);
+}
+
 /* ===== Human Section ===== */
 .human {
     padding: 2rem;
