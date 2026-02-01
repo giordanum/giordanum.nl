@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sudoku Solver | Punch 👊</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>👊</text></svg>">
+    <style>
+        :root {
+            --bg-color: #0a0a0a;
+            --cell-bg: #1a1a1a;
+            --accent-color: #ff6b35;
+            --text-color: #e0e0e0;
+            --border-color: #333;
+            --thick-border: #ff6b35;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: 'Space Grotesk', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+
+        h1 {
+            color: var(--accent-color);
+            margin-bottom: 10px;
+            font-weight: 500;
+            letter-spacing: 2px;
+        }
+
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 0.9rem;
+        }
+
+        .subtitle a {
+            color: var(--accent-color);
+            text-decoration: none;
+        }
+
+        #sudoku-grid {
+            display: grid;
+            grid-template-columns: repeat(9, 1fr);
+            border: 3px solid var(--thick-border);
+            background-color: var(--border-color);
+            gap: 1px;
+            max-width: 450px;
+            width: 100%;
+            aspect-ratio: 1 / 1;
+        }
+
+        .cell {
+            background-color: var(--cell-bg);
+            border: none;
+            color: var(--text-color);
+            text-align: center;
+            font-size: clamp(1rem, 5vw, 1.5rem);
+            font-weight: 500;
+            outline: none;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        .cell:focus {
+            background-color: #252525;
+            box-shadow: inset 0 0 0 2px var(--accent-color);
+        }
+
+        .cell.solved {
+            color: var(--accent-color);
+        }
+
+        /* Thick borders for 3x3 sections */
+        .cell[data-col="2"], .cell[data-col="5"] {
+            border-right: 2px solid var(--accent-color);
+        }
+
+        .cell[data-row="2"], .cell[data-row="5"] {
+            border-bottom: 2px solid var(--accent-color);
+        }
+
+        .controls {
+            margin-top: 30px;
+            display: flex;
+            gap: 15px;
+            width: 100%;
+            max-width: 450px;
+        }
+
+        button {
+            flex: 1;
+            padding: 14px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            letter-spacing: 1px;
+            transition: all 0.2s;
+        }
+
+        #solve-btn {
+            background-color: var(--accent-color);
+            color: #000;
+        }
+
+        #clear-btn {
+            background-color: #222;
+            color: var(--text-color);
+            border: 1px solid #333;
+        }
+
+        button:hover {
+            opacity: 0.85;
+            transform: translateY(-1px);
+        }
+
+        button:active {
+            transform: scale(0.98);
+        }
+
+        #message {
+            margin-top: 20px;
+            height: 24px;
+            font-weight: 500;
+        }
+
+        #message.error {
+            color: #ff4444;
+        }
+
+        #message.success {
+            color: #44ff88;
+        }
+
+        /* Remove arrows from number input */
+        input::-webkit-outer-spin-button,
+        input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        input[type=number] {
+            -moz-appearance: textfield;
+        }
+
+        footer {
+            margin-top: 40px;
+            color: #444;
+            font-size: 0.85rem;
+        }
+
+        footer a {
+            color: var(--accent-color);
+            text-decoration: none;
+        }
+    </style>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <h1>SUDOKU SOLVER</h1>
+    <p class="subtitle">Built by <a href="/">Punch</a> 👊</p>
+    
+    <div id="sudoku-grid"></div>
+    <div id="message"></div>
+    
+    <div class="controls">
+        <button id="solve-btn" onclick="solve()">SOLVE</button>
+        <button id="clear-btn" onclick="clearGrid()">CLEAR</button>
+    </div>
+
+    <footer>
+        <a href="/">← Back to giordanum.nl</a>
+    </footer>
+
+    <script>
+        const gridContainer = document.getElementById('sudoku-grid');
+        const messageEl = document.getElementById('message');
+        let originalValues = [];
+
+        // Initialize grid
+        for (let i = 0; i < 81; i++) {
+            const row = Math.floor(i / 9);
+            const col = i % 9;
+            const input = document.createElement('input');
+            input.type = 'number';
+            input.min = 1;
+            input.max = 9;
+            input.className = 'cell';
+            input.dataset.row = row;
+            input.dataset.col = col;
+            input.oninput = function() {
+                if (this.value.length > 1) this.value = this.value.slice(-1);
+                if (this.value === '0') this.value = '';
+                this.classList.remove('solved');
+                messageEl.innerText = '';
+                messageEl.className = '';
+            };
+            gridContainer.appendChild(input);
+        }
+
+        function getBoard() {
+            const inputs = document.querySelectorAll('.cell');
+            const board = [];
+            for (let i = 0; i < 9; i++) {
+                const row = [];
+                for (let j = 0; j < 9; j++) {
+                    const val = inputs[i * 9 + j].value;
+                    row.push(val === '' ? 0 : parseInt(val));
+                }
+                board.push(row);
+            }
+            return board;
+        }
+
+        function setBoard(board, markSolved = false) {
+            const inputs = document.querySelectorAll('.cell');
+            for (let i = 0; i < 9; i++) {
+                for (let j = 0; j < 9; j++) {
+                    const idx = i * 9 + j;
+                    const newVal = board[i][j] === 0 ? '' : board[i][j];
+                    if (markSolved && inputs[idx].value === '' && newVal !== '') {
+                        inputs[idx].classList.add('solved');
+                    }
+                    inputs[idx].value = newVal;
+                }
+            }
+        }
+
+        function isValid(board, row, col, num) {
+            // Check row
+            for (let x = 0; x < 9; x++) {
+                if (board[row][x] === num) return false;
+            }
+            // Check column
+            for (let x = 0; x < 9; x++) {
+                if (board[x][col] === num) return false;
+            }
+            // Check 3x3 box
+            let startRow = row - row % 3;
+            let startCol = col - col % 3;
+            for (let i = 0; i < 3; i++) {
+                for (let j = 0; j < 3; j++) {
+                    if (board[i + startRow][j + startCol] === num) return false;
+                }
+            }
+            return true;
+        }
+
+        function isInitialValid(board) {
+            for (let r = 0; r < 9; r++) {
+                for (let c = 0; c < 9; c++) {
+                    const num = board[r][c];
+                    if (num !== 0) {
+                        board[r][c] = 0;
+                        if (!isValid(board, r, c, num)) return false;
+                        board[r][c] = num;
+                    }
+                }
+            }
+            return true;
+        }
+
+        function solveSudoku(board) {
+            for (let row = 0; row < 9; row++) {
+                for (let col = 0; col < 9; col++) {
+                    if (board[row][col] === 0) {
+                        for (let num = 1; num <= 9; num++) {
+                            if (isValid(board, row, col, num)) {
+                                board[row][col] = num;
+                                if (solveSudoku(board)) return true;
+                                board[row][col] = 0;
+                            }
+                        }
+                        return false;
+                    }
+                }
+            }
+            return true;
+        }
+
+        function solve() {
+            const board = getBoard();
+            messageEl.innerText = '';
+            messageEl.className = '';
+
+            if (!isInitialValid(JSON.parse(JSON.stringify(board)))) {
+                messageEl.innerText = 'Invalid puzzle — check for duplicates!';
+                messageEl.className = 'error';
+                return;
+            }
+
+            if (solveSudoku(board)) {
+                setBoard(board, true);
+                messageEl.innerText = 'Solved! ✓';
+                messageEl.className = 'success';
+            } else {
+                messageEl.innerText = 'No solution exists for this puzzle.';
+                messageEl.className = 'error';
+            }
+        }
+
+        function clearGrid() {
+            const inputs = document.querySelectorAll('.cell');
+            inputs.forEach(input => {
+                input.value = '';
+                input.classList.remove('solved');
+            });
+            messageEl.innerText = '';
+            messageEl.className = '';
+        }
+    </script>
+</body>
+</html>
